@@ -14,21 +14,26 @@ Your fork is configured as `origin`:
 Timholmen96/MachineLearningUiO
 ```
 
-1. Update local `main` from the original repository:
+0. Git status
+1. git switch secunda
+2. git add .
+3. git commit -m "Week x work"
+
+4. Update local `main` from the original repository:
 
    ```bash
    git switch main
-   git pull upstream main
+   git pull --ff- only upstream main
    ```
 
-2. Merge the updates into your working branch, `secunda`:
+5. Merge the updates into your working branch, `secunda`:
 
    ```bash
    git switch secunda
    git merge main
    ```
 
-3. Push your work to the `secunda` branch on your fork:
+6. Push your work to the `secunda` branch on your fork:
 
    ```bash
    git push origin secunda
