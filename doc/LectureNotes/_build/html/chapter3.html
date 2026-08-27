@@ -1896,6 +1896,39 @@ protruding corner than a flat face, and every corner is a solution with a zero
 coefficient.  In <span class="math notranslate nohighlight">\(p\)</span> dimensions the <span class="math notranslate nohighlight">\(1\)</span>-norm ball has corners, edges and faces
 of every dimension, each corresponding to a different set of variables being
 eliminated.</p>
+<p>Figure 3.2 makes the argument concrete for two
+parameters, where the ball becomes a circle and the diamond a rhombus.  Both
+panels show the <em>same</em> squared-error contours – ellipses centred on the
+unconstrained minimum <span class="math notranslate nohighlight">\(\hat{\bm{\theta}}_{\mathrm{OLS}}\)</span>, with shape set by the
+Hessian <span class="math notranslate nohighlight">\(\bm{X}^T\bm{X}\)</span> – and the <em>same</em> budget <span class="math notranslate nohighlight">\(t\)</span>; the constrained
+solutions are computed exactly, so the points of contact in the figure are not
+sketched but solved for.  Three things are worth reading off.  First, on the
+circle the touching point is a genuine tangency at a generic location: the
+Ridge solution is pulled towards the origin, from <span class="math notranslate nohighlight">\((2.0,\,0.5)\)</span> to
+<span class="math notranslate nohighlight">\((0.92,\,0.39)\)</span> here, but <em>both</em> coordinates survive – shrinkage without
+selection, exactly as Eq. (3.49) predicted.  Second, on
+the rhombus the first contour to arrive strikes the protruding corner
+<span class="math notranslate nohighlight">\((t,\,0)\)</span>, and the corner lies on an axis: <span class="math notranslate nohighlight">\(\hat\theta_2=0\)</span> exactly, at finite
+<span class="math notranslate nohighlight">\(t\)</span>, with nothing gradual about it.  Third – and this is why the Lasso
+selects so readily – a corner does not need tangency at all.  The corner is
+the solution whenever the negative cost gradient there lies anywhere inside
+the <em>cone</em> spanned by the normals of its two adjacent edges, so a whole
+open set of positions of <span class="math notranslate nohighlight">\(\hat{\bm{\theta}}_{\mathrm{OLS}}\)</span> is claimed by each
+corner, while each point on a smooth boundary claims only the single direction
+that is exactly normal to it.  Selection is the rule, not a lucky accident of
+where the data happen to lie.  The figure also displays the two limits of the
+constrained problem: shrinking <span class="math notranslate nohighlight">\(t\)</span> towards zero collapses both regions, and
+both estimators, onto the origin, while any
+<span class="math notranslate nohighlight">\(t\ge\|\hat{\bm{\theta}}_{\mathrm{OLS}}\|\)</span> (in the corresponding norm) makes
+the constraint inactive and returns ordinary least squares – the one-to-one
+correspondence between <span class="math notranslate nohighlight">\(t\)</span> and <span class="math notranslate nohighlight">\(\lambda\)</span> of
+Proposition 3.5.  The normal-cone picture at the corner is
+precisely the subdifferential condition that the next paragraph derives:
+Proposition 3.7’s statement that a coefficient stays at zero
+as long as <span class="math notranslate nohighlight">\(|\tfrac{2}{n}\bm{x}_j^T\bm{r}|\le\lambda\)</span> is the algebraic form of
+“the gradient points into the cone”.</p>
+<p><img alt="The constrained forms of Ridge and Lasso for two parameters.  Both pan" src="../BookML/BookFigures/chapter03_linear_regression/ridge_lasso_geometry.png" /></p>
+<p><em>Figure 3.2: The constrained forms of Ridge and Lasso for two parameters.  Both panels share the same squared-error contours – ellipses centred on <span class="math notranslate nohighlight">\(\hat{\bm{\theta}}_{\mathrm{OLS}}=(2.0,\,0.5)\)</span> with shape given by the Hessian <span class="math notranslate nohighlight">\(\bm{X}^T\bm{X}\)</span> – and the same budget <span class="math notranslate nohighlight">\(t=1\)</span>; the heavier contour is the first to touch each constraint region, and the touching point is the exactly computed constrained solution.  On the Ridge circle (left) the contact is a tangency at a generic point and both coordinates remain non-zero.  On the Lasso rhombus (right) the contour reaches the corner <span class="math notranslate nohighlight">\((1,\,0)\)</span> first, so that <span class="math notranslate nohighlight">\(\hat\theta_2=0\)</span> exactly: the corner solves the problem for a whole cone of gradient directions, which is the geometric origin of the selection property.</em></p>
 <p><strong>Optimality conditions, done properly.</strong>
 Equation (3.59) was obtained by ignoring the point at
 which <span class="math notranslate nohighlight">\(\mathrm{sgn}\)</span> is undefined.  The difficulty is removed rather than
@@ -2133,7 +2166,7 @@ three coefficient paths against <span class="math notranslate nohighlight">\(\la
 the Ridge curves approach the axis asymptotically, the Lasso curves reach it
 and stop.</p>
 <p><img alt="Coefficient paths for the toy problem 3.70.  The Ridge coefficients le" src="_images/ridge_lasso_paths.png" /></p>
-<p><em>Figure 3.2: Coefficient paths for the toy problem (3.70).  The Ridge coefficients (left) follow the analytical result (3.73), shown dotted, and approach zero only asymptotically.  The Lasso coefficients (right) reach zero at the finite thresholds <span class="math notranslate nohighlight">\(\lambda=4\)</span> and <span class="math notranslate nohighlight">\(\lambda=16\)</span> predicted by Eq. (3.63).</em></p>
+<p><em>Figure 3.3: Coefficient paths for the toy problem (3.70).  The Ridge coefficients (left) follow the analytical result (3.73), shown dotted, and approach zero only asymptotically.  The Lasso coefficients (right) reach zero at the finite thresholds <span class="math notranslate nohighlight">\(\lambda=4\)</span> and <span class="math notranslate nohighlight">\(\lambda=16\)</span> predicted by Eq. (3.63).</em></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -2712,6 +2745,131 @@ Section <em>Arrays in practice: numpy, BLAS and LAPACK</em> – before a penalty
 squares is exempt, since Eq. (3.8) is equivariant under
 rescaling of the columns; the fitted values do not change, only the
 coefficients, in a compensating way.</p>
+<p><strong>Why OLS is equivariant – and why the penalised methods are not.</strong>
+Both claims of the previous paragraph deserve proof, and the proofs are three
+lines each.  A change of units multiplies each column of the design matrix by
+a positive constant: measuring feature <span class="math notranslate nohighlight">\(j\)</span> in units a factor <span class="math notranslate nohighlight">\(d_j\)</span> smaller
+turns the column <span class="math notranslate nohighlight">\(\bm{x}_j\)</span> into <span class="math notranslate nohighlight">\(d_j\bm{x}_j\)</span> (a length recorded in
+millimetres rather than metres has <span class="math notranslate nohighlight">\(d_j=1000\)</span>).  Collecting the factors in
+<span class="math notranslate nohighlight">\(\bm{D}=\mathrm{diag}(d_0,\dots,d_{p-1})\)</span>, the design matrix becomes
+<span class="math notranslate nohighlight">\(\bm{X}\bm{D}\)</span>, and a new input rescales the same way.  For ordinary least
+squares, assuming full column rank,</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{\bm{\theta}}(\bm{X}\bm{D})
+   = \left(\bm{D}\bm{X}^T\bm{X}\bm{D}\right)^{-1}\bm{D}\bm{X}^T\bm{y}
+   = \bm{D}^{-1}\left(\bm{X}^T\bm{X}\right)^{-1}\bm{D}^{-1}\bm{D}\bm{X}^T\bm{y}
+   = \bm{D}^{-1}\,\hat{\bm{\theta}}(\bm{X}),
+\]</div>
+<p>using that diagonal matrices commute with themselves and invert entrywise.
+The coefficients rescale by exactly the inverse factors – a slope per
+millimetre is a thousandth of a slope per metre – and every prediction is
+untouched: the fitted values are
+<span class="math notranslate nohighlight">\(\bm{X}\bm{D}\,\bm{D}^{-1}\hat{\bm{\theta}}=\bm{X}\hat{\bm{\theta}}\)</span>, and a new
+point <span class="math notranslate nohighlight">\(\bm{x}_*\)</span>, which in the new units reads <span class="math notranslate nohighlight">\(\bm{D}\bm{x}_*\)</span>, predicts
+<span class="math notranslate nohighlight">\((\bm{D}\bm{x}_*)^T\bm{D}^{-1}\hat{\bm{\theta}}=\bm{x}_*^T\hat{\bm{\theta}}\)</span>.
+This is <em>equivariance</em>: the parametrisation moves, the model does not.</p>
+<p>For Ridge regression the same computation tells a different story.  Factor
+the regularised matrix as
+<span class="math notranslate nohighlight">\(\bm{D}\bm{X}^T\bm{X}\bm{D}+\lambda\bm{I}
+ = \bm{D}\left(\bm{X}^T\bm{X}+\lambda\bm{D}^{-2}\right)\bm{D}\)</span>;
+inverting and multiplying by <span class="math notranslate nohighlight">\(\bm{D}\bm{X}^T\bm{y}\)</span> gives</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{\bm{\theta}}_{\mathrm{Ridge}}(\bm{X}\bm{D};\lambda)
+   = \bm{D}^{-1}\left(\bm{X}^T\bm{X}+\lambda\bm{D}^{-2}\right)^{-1}\bm{X}^T\bm{y}.
+\]</div>
+<p>The rescaled problem is therefore <em>not</em> the original Ridge problem in
+disguise: it is ordinary-units Ridge with the spherical penalty
+<span class="math notranslate nohighlight">\(\lambda\|\bm{\theta}\|_2^2\)</span> replaced by the axis-weighted penalty
+<span class="math notranslate nohighlight">\(\lambda\,\bm{\theta}^T\bm{D}^{-2}\bm{\theta}\)</span> – an ellipsoid whose axes are
+set by the units.  The fitted values
+<span class="math notranslate nohighlight">\(\bm{X}(\bm{X}^T\bm{X}+\lambda\bm{D}^{-2})^{-1}\bm{X}^T\bm{y}\)</span> change unless
+<span class="math notranslate nohighlight">\(\bm{D}\)</span> is a multiple of the identity (a <em>uniform</em> rescaling only
+relabels <span class="math notranslate nohighlight">\(\lambda\)</span> as <span class="math notranslate nohighlight">\(\lambda/d^2\)</span> and stays within the Ridge family; it is
+the <em>relative</em> scales of the features that change the model).  For the
+Lasso the substitution <span class="math notranslate nohighlight">\(\bm{\theta}=\bm{D}\bm{\theta}'\)</span> in the rescaled
+objective gives</p>
+<div class="math notranslate nohighlight">
+\[
+\left\|\bm{y}-\bm{X}\bm{D}\bm{\theta}'\right\|_2^2
+   + \lambda\left\|\bm{\theta}'\right\|_1
+   = \left\|\bm{y}-\bm{X}\bm{\theta}\right\|_2^2
+   + \lambda\sum_{j=0}^{p-1}\frac{\left|\theta_j\right|}{d_j}:
+\]</div>
+<p>each feature now pays its own price <span class="math notranslate nohighlight">\(\lambda/d_j\)</span>, and the feature recorded in
+millimetres pays a thousandth of what it paid in metres.  A change of units is
+a change of the penalty, hence of the model – which coefficients are shrunk,
+and which are selected, becomes an artefact of the bookkeeping.  The following
+program shows all three statements at work on one small data set, with the
+intercept handled by centring as derived below.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">Lasso</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">2026</span><span class="p">)</span>
+<span class="n">n</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">x1</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>                     <span class="c1"># a length, measured in metres</span>
+<span class="n">x2</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">random</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>                     <span class="c1"># a time, measured in seconds</span>
+<span class="n">y</span> <span class="o">=</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">x1</span> <span class="o">-</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">x2</span> <span class="o">+</span> <span class="mf">0.1</span> <span class="o">*</span> <span class="n">rng</span><span class="o">.</span><span class="n">standard_normal</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+<span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">([</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">])</span>
+<span class="n">D</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">([</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">])</span>             <span class="c1"># metres -&gt; millimetres in column 1</span>
+<span class="n">XD</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">D</span>                             <span class="c1"># the same data, in the new units</span>
+
+<span class="n">Xc</span><span class="p">,</span> <span class="n">yc</span> <span class="o">=</span> <span class="n">X</span> <span class="o">-</span> <span class="n">X</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">y</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>      <span class="c1"># centred: intercept handled</span>
+<span class="n">XDc</span> <span class="o">=</span> <span class="n">XD</span> <span class="o">-</span> <span class="n">XD</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>                     <span class="c1"># separately and unpenalised</span>
+
+<span class="n">lmbda</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="k">def</span> <span class="nf">ols</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">lstsq</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">rcond</span><span class="o">=</span><span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">def</span> <span class="nf">ridge</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">P</span><span class="p">):</span>                    <span class="c1"># generalised penalty lambda theta^T P theta</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">X</span> <span class="o">+</span> <span class="n">lmbda</span> <span class="o">*</span> <span class="n">P</span><span class="p">,</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">y</span><span class="p">)</span>
+
+<span class="n">I</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">t</span><span class="p">,</span> <span class="n">tD</span> <span class="o">=</span> <span class="n">ols</span><span class="p">(</span><span class="n">Xc</span><span class="p">,</span> <span class="n">yc</span><span class="p">),</span> <span class="n">ols</span><span class="p">(</span><span class="n">XDc</span><span class="p">,</span> <span class="n">yc</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OLS   coefficients (m,s):&quot;</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="s2">&quot;  (mm,s):&quot;</span><span class="p">,</span> <span class="n">tD</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;OLS   D theta_mm = theta_m:&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">D</span><span class="p">)</span> <span class="o">*</span> <span class="n">tD</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span>
+      <span class="s2">&quot;  max |prediction change|: </span><span class="si">%.2e</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">XDc</span> <span class="o">@</span> <span class="n">tD</span> <span class="o">-</span> <span class="n">Xc</span> <span class="o">@</span> <span class="n">t</span><span class="p">)))</span>
+
+<span class="n">r</span><span class="p">,</span> <span class="n">rD</span> <span class="o">=</span> <span class="n">ridge</span><span class="p">(</span><span class="n">Xc</span><span class="p">,</span> <span class="n">yc</span><span class="p">,</span> <span class="n">I</span><span class="p">),</span> <span class="n">ridge</span><span class="p">(</span><span class="n">XDc</span><span class="p">,</span> <span class="n">yc</span><span class="p">,</span> <span class="n">I</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ridge coefficients (m,s):&quot;</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="s2">&quot;  (mm,s):&quot;</span><span class="p">,</span> <span class="n">rD</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ridge max |prediction change|: </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">XDc</span> <span class="o">@</span> <span class="n">rD</span> <span class="o">-</span> <span class="n">Xc</span> <span class="o">@</span> <span class="n">r</span><span class="p">)))</span>
+<span class="n">r_mod</span> <span class="o">=</span> <span class="n">ridge</span><span class="p">(</span><span class="n">Xc</span><span class="p">,</span> <span class="n">yc</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">D</span> <span class="o">@</span> <span class="n">D</span><span class="p">))</span>    <span class="c1"># penalty lambda theta^T D^-2 theta</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Ridge on XD = modified-penalty ridge on X:&quot;</span><span class="p">,</span>
+      <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diag</span><span class="p">(</span><span class="n">D</span><span class="p">)</span> <span class="o">*</span> <span class="n">rD</span><span class="p">,</span> <span class="n">r_mod</span><span class="p">))</span>
+
+<span class="n">la</span> <span class="o">=</span> <span class="n">Lasso</span><span class="p">(</span><span class="n">alpha</span><span class="o">=</span><span class="n">lmbda</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100000</span><span class="p">)</span>
+<span class="n">lm</span><span class="p">,</span> <span class="n">lmm</span> <span class="o">=</span> <span class="n">la</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xc</span><span class="p">,</span> <span class="n">yc</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">copy</span><span class="p">(),</span> <span class="n">la</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">XDc</span><span class="p">,</span> <span class="n">yc</span><span class="p">)</span><span class="o">.</span><span class="n">coef_</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lasso coefficients (m,s):&quot;</span><span class="p">,</span> <span class="n">lm</span><span class="p">,</span> <span class="s2">&quot;  (mm,s):&quot;</span><span class="p">,</span> <span class="n">lmm</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lasso max |prediction change|: </span><span class="si">%.3f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">XDc</span> <span class="o">@</span> <span class="n">lmm</span> <span class="o">-</span> <span class="n">Xc</span> <span class="o">@</span> <span class="n">lm</span><span class="p">)))</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">OLS</span>   <span class="n">coefficients</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">s</span><span class="p">):</span> <span class="p">[</span> <span class="mf">1.98213925</span> <span class="o">-</span><span class="mf">2.97802972</span><span class="p">]</span>   <span class="p">(</span><span class="n">mm</span><span class="p">,</span><span class="n">s</span><span class="p">):</span> <span class="p">[</span> <span class="mf">1.98213925e-03</span> <span class="o">-</span><span class="mf">2.97802972e+00</span><span class="p">]</span>
+<span class="n">OLS</span>   <span class="n">D</span> <span class="n">theta_mm</span> <span class="o">=</span> <span class="n">theta_m</span><span class="p">:</span> <span class="kc">True</span>   <span class="nb">max</span> <span class="o">|</span><span class="n">prediction</span> <span class="n">change</span><span class="o">|</span><span class="p">:</span> <span class="mf">8.88e-16</span>
+<span class="n">Ridge</span> <span class="n">coefficients</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">s</span><span class="p">):</span> <span class="p">[</span> <span class="mf">1.91639278</span> <span class="o">-</span><span class="mf">2.90255695</span><span class="p">]</span>   <span class="p">(</span><span class="n">mm</span><span class="p">,</span><span class="n">s</span><span class="p">):</span> <span class="p">[</span> <span class="mf">1.98248632e-03</span> <span class="o">-</span><span class="mf">2.90233356e+00</span><span class="p">]</span>
+<span class="n">Ridge</span> <span class="nb">max</span> <span class="o">|</span><span class="n">prediction</span> <span class="n">change</span><span class="o">|</span><span class="p">:</span> <span class="mf">0.033</span>
+<span class="n">Ridge</span> <span class="n">on</span> <span class="n">XD</span> <span class="o">=</span> <span class="n">modified</span><span class="o">-</span><span class="n">penalty</span> <span class="n">ridge</span> <span class="n">on</span> <span class="n">X</span><span class="p">:</span> <span class="kc">True</span>
+<span class="n">Lasso</span> <span class="n">coefficients</span> <span class="p">(</span><span class="n">m</span><span class="p">,</span><span class="n">s</span><span class="p">):</span> <span class="p">[</span> <span class="mf">1.12291528</span> <span class="o">-</span><span class="mf">2.32899154</span><span class="p">]</span>   <span class="p">(</span><span class="n">mm</span><span class="p">,</span><span class="n">s</span><span class="p">):</span> <span class="p">[</span> <span class="mf">1.98426741e-03</span> <span class="o">-</span><span class="mf">2.32600432e+00</span><span class="p">]</span>
+<span class="n">Lasso</span> <span class="nb">max</span> <span class="o">|</span><span class="n">prediction</span> <span class="n">change</span><span class="o">|</span><span class="p">:</span> <span class="mf">0.426</span>
+</pre></div>
+</div>
+<p>The output is the two propositions in numerical form.  For OLS the millimetre
+coefficient is exactly a thousandth of the metre coefficient and the
+predictions agree to machine precision.  For Ridge the predictions move –
+and the third printed line confirms <em>why</em>: the rescaled fit coincides,
+after undoing <span class="math notranslate nohighlight">\(\bm{D}\)</span>, with the original-units fit under the modified
+penalty <span class="math notranslate nohighlight">\(\lambda\bm{\theta}^T\bm{D}^{-2}\bm{\theta}\)</span>, to machine precision.
+For the Lasso the effect is largest: in metres the length coefficient is
+shrunk from its OLS value <span class="math notranslate nohighlight">\(1.98\)</span> down to <span class="math notranslate nohighlight">\(1.12\)</span>, while in millimetres it
+escapes the penalty almost entirely (<span class="math notranslate nohighlight">\(1000\times1.98\cdot10^{-3}\approx1.98\)</span>)
+because its price is <span class="math notranslate nohighlight">\(\lambda/1000\)</span> – same data, same <span class="math notranslate nohighlight">\(\lambda\)</span>, different
+model.  Standardising the columns fixes <span class="math notranslate nohighlight">\(\bm{D}\)</span> once and for all and makes
+the penalty unit-free, which is the real content of the advice that opened
+this section.</p>
 <p><strong>The intercept should not be penalised.</strong>
 The intercept <span class="math notranslate nohighlight">\(\theta_0\)</span> is the expected target when all predictors are zero.
 Penalising it shrinks the fitted values towards zero rather than towards the
@@ -2723,12 +2881,68 @@ that fails if <span class="math notranslate nohighlight">\(\theta_0\)</span> is 
 of <span class="math notranslate nohighlight">\(\bm{X}\)</span> and the target <span class="math notranslate nohighlight">\(\bm{y}\)</span> have had their means subtracted, the
 intercept of the centred problem is exactly zero, so it can be dropped from
 the design matrix altogether and the penalty then applies only to the genuine
-slopes.  The intercept is recovered afterwards from</p>
+slopes.  Where the recovery formula for the intercept comes from is worth the
+few lines it takes.  Single the intercept out in the cost function, the
+design matrix now containing no column of ones,</p>
+<div class="math notranslate nohighlight">
+\[
+C(\theta_0,\theta_1,\dots,\theta_{p-1})
+   = \frac{1}{n}\sum_{i=0}^{n-1}
+     \left(y_i-\theta_0-\sum_{j=1}^{p-1}X_{ij}\theta_j\right)^{2}.
+\]</div>
+<p>At the optimum every partial derivative vanishes; for the intercept,</p>
+<div class="math notranslate nohighlight">
+\[
+\frac{\partial C}{\partial\theta_0}
+   = -\frac{2}{n}\sum_{i=0}^{n-1}
+     \left(y_i-\theta_0-\sum_{j=1}^{p-1}X_{ij}\theta_j\right) = 0,
+\]</div>
+<p>and since the sum over <span class="math notranslate nohighlight">\(i\)</span> of the constant <span class="math notranslate nohighlight">\(\theta_0\)</span> is <span class="math notranslate nohighlight">\(n\theta_0\)</span>,</p>
+<div class="math notranslate nohighlight">
+\[
+n\,\theta_0 = \sum_{i=0}^{n-1}y_i
+   - \sum_{i=0}^{n-1}\sum_{j=1}^{p-1}X_{ij}\theta_j .
+\]</div>
+<p>Dividing by <span class="math notranslate nohighlight">\(n\)</span> and writing <span class="math notranslate nohighlight">\(\bar{y}=\frac{1}{n}\sum_i y_i\)</span> and
+<span class="math notranslate nohighlight">\(\bar{x}_j=\frac{1}{n}\sum_i X_{ij}\)</span> for the column means, the simplest case
+of one slope reads <span class="math notranslate nohighlight">\(\theta_0=\bar{y}-\theta_1\bar{x}_1\)</span> – the fitted line
+passes through the point of means <span class="math notranslate nohighlight">\((\bar{x}_1,\bar{y})\)</span> – and in general the
+intercept is recovered from</p>
 <div class="math notranslate nohighlight">
 \[
 \hat{\theta}_0 = \bar{y} - \sum_{j=1}^{p-1}\bar{x}_j\hat{\theta}_j ,\tag{3.90}
 \]</div>
-<p>with <span class="math notranslate nohighlight">\(\bar{y}\)</span> and <span class="math notranslate nohighlight">\(\bar{x}_j\)</span> the training means.  This is what
+<p>with <span class="math notranslate nohighlight">\(\bar{y}\)</span> and <span class="math notranslate nohighlight">\(\bar{x}_j\)</span> the training means.  The same computation
+explains why centring removes the intercept altogether: substituting the
+optimal <span class="math notranslate nohighlight">\(\theta_0\)</span> back into the cost turns it into the cost of a centred
+problem,</p>
+<div class="math notranslate nohighlight">
+\[
+C(\bm{\theta})
+   = \left(\tilde{\bm{y}}-\tilde{\bm{X}}\bm{\theta}\right)^T
+     \left(\tilde{\bm{y}}-\tilde{\bm{X}}\bm{\theta}\right),
+  \qquad
+  \tilde{\bm{y}} = \bm{y}-\bar{y}\bm{1},
+  \quad
+  \tilde{X}_{ij} = X_{ij}-\bar{x}_j ,
+\]</div>
+<p>up to the factor <span class="math notranslate nohighlight">\(1/n\)</span>, whose minimiser is</p>
+<div class="math notranslate nohighlight">
+\[
+\hat{\bm{\theta}} = \left(\tilde{\bm{X}}^T\tilde{\bm{X}}\right)^{-1}
+     \tilde{\bm{X}}^T\tilde{\bm{y}}
+  \qquad\text{for OLS},
+  \qquad
+  \hat{\bm{\theta}} = \left(\tilde{\bm{X}}^T\tilde{\bm{X}}+\lambda\bm{I}\right)^{-1}
+     \tilde{\bm{X}}^T\tilde{\bm{y}}
+  \qquad\text{for Ridge}:
+\]</div>
+<p>the intercept has disappeared from the optimisation, and the penalty touches
+only the genuine slopes.  Fitting with the penalised intercept instead drags
+the whole fit towards zero and typically <em>raises</em> the mean squared
+error; the centred fit, whose regularisation term runs over
+<span class="math notranslate nohighlight">\(j=1,\dots,p-1\)</span> only, is free to place the level of the data where the data
+put it.  This is what
 <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> does internally when the intercept is fitted, and it is
 why its default solutions are derived under the assumption that both
 <span class="math notranslate nohighlight">\(\bm{y}\)</span> and <span class="math notranslate nohighlight">\(\bm{X}\)</span> are zero centred.</p>
@@ -2784,6 +2998,40 @@ parameter is our <span class="math notranslate nohighlight">\(\lambda\)</span> o
 the numbers while leaving the method unchanged, and discovering which is
 responsible is a routine part of the work.</p>
 </div>
+<p><strong>Normalising and scaling data in practice.</strong>
+For data sets gathered from real applications it is the rule rather than the
+exception that different features carry very different units and numerical
+scales.  A data set on health habits may hold an <em>age</em> in the range
+<span class="math notranslate nohighlight">\(0\)</span>–<span class="math notranslate nohighlight">\(80\)</span> next to a <em>caloric intake</em> of order <span class="math notranslate nohighlight">\(2000\)</span>; many methods are
+sensitive to such differences and perform poorly when they are left in place.
+The workhorse transformation is the <em>standardisation</em> used throughout
+this section: for each feature <span class="math notranslate nohighlight">\(j\)</span>, subtract the mean and divide by the
+standard deviation over the (training) data,</p>
+<div class="math notranslate nohighlight">
+\[
+x_j^{(i)} \;\rightarrow\; \frac{x_j^{(i)}-\bar{x}_j}{\sigma(x_j)} ,
+\]</div>
+<p>so that every column has zero mean and unit standard deviation
+(<code class="docutils literal notranslate"><span class="pre">StandardScaler</span></code> in <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code>; when the standard deviation
+is unavailable or one prefers not to estimate it, it is common to simply set
+it to one, which reduces the transformation to centring).  Standardisation
+does not, however, confine the values to any particular interval.  When a
+fixed range matters – inputs to functions defined on <span class="math notranslate nohighlight">\([0,1]\)</span>, pixel
+intensities, activations with saturating nonlinearities – <em>min–max
+scaling</em> (<code class="docutils literal notranslate"><span class="pre">MinMaxScaler</span></code>) maps each feature exactly onto <span class="math notranslate nohighlight">\([0,1]\)</span> by
+subtracting the minimum and dividing by the range.  Two further scalers are
+worth knowing.  The <code class="docutils literal notranslate"><span class="pre">Normalizer</span></code> acts on rows rather than columns: it
+rescales each <em>data point</em> to unit Euclidean length, projecting it onto
+the unit sphere, so that every sample is divided by its own norm; this is the
+natural choice when only the direction of the feature vector matters and not
+its magnitude.  And the <code class="docutils literal notranslate"><span class="pre">RobustScaler</span></code> plays the role of the
+<code class="docutils literal notranslate"><span class="pre">StandardScaler</span></code> with the mean and standard deviation replaced by the
+median and the quartiles, which makes it insensitive to points far from the
+bulk of the data – outliers, often simple measurement errors, that can
+otherwise dominate the estimated mean and variance and thereby corrupt the
+scaling of every remaining point.  Whichever scaler is chosen, the rule
+derived earlier in this section stands unchanged: its statistics are computed
+on the training data and applied, frozen, to everything that comes later.</p>
 </section>
 <section id="a-complete-example-the-franke-function">
 <h2><span class="section-number">3.14. </span>A complete example: the Franke function<a class="headerlink" href="#a-complete-example-the-franke-function" title="Link to this heading">#</a></h2>
@@ -2808,7 +3056,7 @@ moderate one.  Adding Gaussian noise gives us a problem with a known truth, a
 known noise level and a tunable complexity – everything needed to see the
 bias-variance trade-off of Section <em>The bias-variance tradeoff</em> in action.</p>
 <p><img alt="The Franke function 3.91 on the unit square left and a contour view wi" src="_images/franke_function.png" /></p>
-<p><em>Figure 3.3: The Franke function (3.91) on the unit square (left) and a contour view with the <span class="math notranslate nohighlight">\(n=100\)</span> noisy samples used in this section marked (right).  Two peaks, a saddle and a depression make it too rich for a low-order polynomial and well within reach of a moderate one.</em></p>
+<p><em>Figure 3.4: The Franke function (3.91) on the unit square (left) and a contour view with the <span class="math notranslate nohighlight">\(n=100\)</span> noisy samples used in this section marked (right).  Two peaks, a saddle and a depression make it too rich for a low-order polynomial and well within reach of a moderate one.</em></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
@@ -2939,7 +3187,7 @@ rounding error.  That failure is one of conditioning rather than of
 statistics, and it is the only one of the three that no amount of clean data
 will cure.  The best model is a property of the data set – its size and its
 noise level – and not of the function being approximated.</p>
-<p>Figure 3.4 presents the whole experiment at a glance.
+<p>Figure 3.5 presents the whole experiment at a glance.
 The left panel is the test error, on a logarithmic scale so that the seven
 orders of magnitude are visible at all; the right panel counts the coefficients
 the Lasso retains.  Read together they make the argument of this chapter: all
@@ -2947,7 +3195,7 @@ three methods reach the same floor, set by the irreducible <span class="math not
 only the penalised ones stay near it when the complexity is chosen badly, and
 only the Lasso tells us how many terms were needed.</p>
 <p><img alt="Test error against polynomial degree for the three estimators on the F" src="_images/franke_model_selection.png" /></p>
-<p><em>Figure 3.4: Test error against polynomial degree for the three estimators on the Franke data (left, logarithmic), with the noise floor <span class="math notranslate nohighlight">\(\sigma^{2}=0.04\)</span> marked; and the number of coefficients the Lasso retains against the total number available (right).</em></p>
+<p><em>Figure 3.5: Test error against polynomial degree for the three estimators on the Franke data (left, logarithmic), with the noise floor <span class="math notranslate nohighlight">\(\sigma^{2}=0.04\)</span> marked; and the number of coefficients the Lasso retains against the total number available (right).</em></p>
 <div class="tip admonition">
 <p class="admonition-title">Machine learning connection</p>
 <p>The whole analysis rests on one number
@@ -3067,7 +3315,7 @@ program confirms both the identities and the bound:</p>
 </div>
 <p>The bound is attained, and the singular value spectrum falls off a cliff
 exactly at index <span class="math notranslate nohighlight">\(781\)</span>, dropping by fourteen orders of magnitude between one
-singular value and the next.  Figure 3.5 shows it.  In
+singular value and the next.  Figure 3.6 shows it.  In
 the expansion (3.11) the least-squares coefficient along each
 right singular vector is <span class="math notranslate nohighlight">\(\bm{u}_i^{T}\bm{y}/\sigma_i\)</span>; here <span class="math notranslate nohighlight">\(819\)</span> of those
 denominators are zero, and the pseudoinverse of
@@ -3075,7 +3323,7 @@ Section <em>Ordinary least squares</em> handles them by declaring the correspond
 to be zero – the minimum-norm choice.  That convention is about to have a
 visible physical consequence.</p>
 <p><img alt="Singular values of the 10000times1600 Ising design matrix 3.94 for L40" src="../BookML/BookFigures/chapter03_linear_regression/ising_spectrum.png" /></p>
-<p><em>Figure 3.5: Singular values of the <span class="math notranslate nohighlight">\(10000\times1600\)</span> Ising design matrix (3.94) for <span class="math notranslate nohighlight">\(L=40\)</span>.  The spectrum collapses precisely at the index <span class="math notranslate nohighlight">\(L(L-1)/2+1=781\)</span> predicted by Proposition 3.14: the rank deficiency is a property of the features, not of the sample.</em></p>
+<p><em>Figure 3.6: Singular values of the <span class="math notranslate nohighlight">\(10000\times1600\)</span> Ising design matrix (3.94) for <span class="math notranslate nohighlight">\(L=40\)</span>.  The spectrum collapses precisely at the index <span class="math notranslate nohighlight">\(L(L-1)/2+1=781\)</span> predicted by Proposition 3.14: the rank deficiency is a property of the features, not of the sample.</em></p>
 </section>
 <section id="fitting-with-p-four-times-n">
 <h3><span class="section-number">3.15.2. </span>Fitting with <span class="math notranslate nohighlight">\(p\)</span> four times <span class="math notranslate nohighlight">\(n\)</span><a class="headerlink" href="#fitting-with-p-four-times-n" title="Link to this heading">#</a></h3>
@@ -3100,14 +3348,14 @@ is not a bug and is discussed below.  And the Lasso is essentially perfect on
 data it has never seen, using <span class="math notranslate nohighlight">\(78\)</span> of the <span class="math notranslate nohighlight">\(1600\)</span> coefficients.</p>
 <p>The last number is the interesting one, because <span class="math notranslate nohighlight">\(78=2\times39\)</span> is very nearly
 <span class="math notranslate nohighlight">\(2L=80\)</span>: the Lasso has found the nearest-neighbour couplings and almost
-nothing else.  Figure 3.6 shows the three recovered
+nothing else.  Figure 3.7 shows the three recovered
 coupling matrices, and the difference is not subtle.</p>
 <p><img alt="The coupling matrices Jjk recovered from 400 configurations of the L40" src="../BookML/BookFigures/chapter03_linear_regression/ising_couplings.png" /></p>
-<p><em>Figure 3.6: The coupling matrices <span class="math notranslate nohighlight">\(J_{jk}\)</span> recovered from <span class="math notranslate nohighlight">\(400\)</span> configurations of the <span class="math notranslate nohighlight">\(L=40\)</span> Ising chain.  The truth is a single off-diagonal band.  OLS and Ridge spread the interaction over the whole matrix and split each coupling symmetrically between <span class="math notranslate nohighlight">\((j,k)\)</span> and <span class="math notranslate nohighlight">\((k,j)\)</span>; the Lasso finds the band and puts each coupling entirely on one side of the pair.  Both behaviours are forced, by Proposition 3.15.</em></p>
+<p><em>Figure 3.7: The coupling matrices <span class="math notranslate nohighlight">\(J_{jk}\)</span> recovered from <span class="math notranslate nohighlight">\(400\)</span> configurations of the <span class="math notranslate nohighlight">\(L=40\)</span> Ising chain.  The truth is a single off-diagonal band.  OLS and Ridge spread the interaction over the whole matrix and split each coupling symmetrically between <span class="math notranslate nohighlight">\((j,k)\)</span> and <span class="math notranslate nohighlight">\((k,j)\)</span>; the Lasso finds the band and puts each coupling entirely on one side of the pair.  Both behaviours are forced, by Proposition 3.15.</em></p>
 </section>
 <section id="why-the-symmetry-and-why-only-for-two-of-the-three">
 <h3><span class="section-number">3.15.3. </span>Why the symmetry, and why only for two of the three<a class="headerlink" href="#why-the-symmetry-and-why-only-for-two-of-the-three" title="Link to this heading">#</a></h3>
-<p>The pattern in Figure 3.6 is not a quirk of this data
+<p>The pattern in Figure 3.7 is not a quirk of this data
 set.  It is a theorem about duplicated columns, and it explains the behaviour
 of all three estimators at once.</p>
 <div class="important admonition">
@@ -3236,9 +3484,9 @@ which point the test score collapses to <span class="math notranslate nohighligh
 though the training score is still <span class="math notranslate nohighlight">\(1\)</span>.  Above it we pass
 Proposition 3.8, the coefficients are driven to zero one
 after another, and at <span class="math notranslate nohighlight">\(\lambda=10\)</span> none survive.
-Figure 3.7 plots both curves.</p>
+Figure 3.8 plots both curves.</p>
 <p><img alt="Test and training R2 against the penalty for the Ising problem, with t" src="../BookML/BookFigures/chapter03_linear_regression/ising_penalty.png" /></p>
-<p><em>Figure 3.7: Test and training <span class="math notranslate nohighlight">\(R^{2}\)</span> against the penalty for the Ising problem, with the OLS test score marked.  Ridge (a) needs <span class="math notranslate nohighlight">\(\lambda\sim10^{3}\)</span> before anything happens, and never beats OLS.  The Lasso (b) has a broad plateau on which it is exact, and the count of non-zero coefficients (right axis, dashed) sits at about <span class="math notranslate nohighlight">\(2L=80\)</span> across it.</em></p>
+<p><em>Figure 3.8: Test and training <span class="math notranslate nohighlight">\(R^{2}\)</span> against the penalty for the Ising problem, with the OLS test score marked.  Ridge (a) needs <span class="math notranslate nohighlight">\(\lambda\sim10^{3}\)</span> before anything happens, and never beats OLS.  The Lasso (b) has a broad plateau on which it is exact, and the count of non-zero coefficients (right axis, dashed) sits at about <span class="math notranslate nohighlight">\(2L=80\)</span> across it.</em></p>
 </section>
 <section id="what-the-example-is-for">
 <h3><span class="section-number">3.15.5. </span>What the example is for<a class="headerlink" href="#what-the-example-is-for" title="Link to this heading">#</a></h3>
