@@ -23,7 +23,7 @@ Timholmen96/MachineLearningUiO
 
    ```bash
    git switch main
-   git pull --ff- only upstream main
+   git pull upstream main
    ```
 
 5. Merge the updates into your working branch, `secunda`:
