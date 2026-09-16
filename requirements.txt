@@ -2,6 +2,7 @@ numpy
 pandas
 matplotlib
 scipy
+jax
 scikit-learn
 mglearn
 jupyter
