@@ -25,42 +25,33 @@ deg_V = np.arange(maxdeg + 1)
 lambdas = [1e-2, 1e-1, 1.0, 1e1]
 MSE_grid = np.zeros((maxdeg + 1, len(lambdas)))
 R2_grid = np.zeros((maxdeg + 1, len(lambdas)))
-Parameter_V = []
-Prediction_V = []
 
-lmb = 0.1
 for degree in range(maxdeg + 1):
     X = design_matrix(x, degree)
     X_train, X_test, y_train, y_test = train_test_split(X,
     y, test_size=0.3, random_state=2026)
 
-    # Beholder intercept 
-    X_train_norm = X_train.copy()
-    X_test_norm = X_test.copy()
-    if degree > 0:
-        X_train_mean = X_train[:, 1:].mean(axis=0)
-        X_train_std = X_train[:, 1:].std(axis=0)
+    # Beregn gjennomsnitt og standardavvik fra treningsdata
+    mean = X_train.mean(axis=0)
+    std = X_train.std(axis=0)
 
-        X_train_norm[:, 1:] = (X_train[:, 1:] - X_train_mean) / X_train_std 
-        X_test_norm[:, 1:] = (X_test[:, 1:] - X_train_mean) / X_train_std
-        # Trenger ikke sentrere y da design matrisen inneholder intercept
+    # Behold konstantkolonnen: (1 - 0) / 1 = 1
+    mean[0] = 0
+    std[0] = 1
+
+    X_train_norm = (X_train - mean) / std
+    X_test_norm = (X_test - mean) / std
+    # Trenger ikke sentrere y da design matrisen inneholder intercept
+
     for i, lmb in enumerate(lambdas):
         I = np.eye(X_train_norm.shape[1])
         I[0,0] = 0.0 # Vil ikke at intercept skal bli straffet av Ridge
         
         theta = np.linalg.pinv((X_train_norm).T @ (X_train_norm) + lmb*I) @ (X_train_norm).T @ y_train
-
-        # Bruk treningsmodellens normalisering for hver grads prediksjonskurve.
-        X_plot = design_matrix(xx, degree)
-        if degree > 0:
-            X_plot[:, 1:] = (X_plot[:, 1:] - X_train_mean) / X_train_std
-        #Prediction_V.append(X_plot @ theta)
-
+        
         y_predict = X_test_norm @ theta
         mse = np.mean((y_test - y_predict)**2)
-        #MSE_V.append(mse)
 
-        y_predict = X_test_norm @ theta 
         MSE_grid[degree, i] = np.mean((y_test - y_predict)**2)
         y_mean = np.mean(y_test)
         R2_grid[degree, i] = 1 - np.sum((y_test - y_predict)**2) / np.sum((y_test - y_mean)**2)
