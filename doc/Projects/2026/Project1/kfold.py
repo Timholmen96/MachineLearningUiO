@@ -15,6 +15,9 @@ from sklearn.preprocessing import PolynomialFeatures, StandardScaler
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from sklearn.utils import resample
+
+
+
 def runge(x):
     return 1.0 / (1.0 + 25.0 * x**2)
 
@@ -39,11 +42,15 @@ def kfold_CV_OLS(folds, degree):
         random_state=2026
     )
 
+    model = make_pipeline(
+        PolynomialFeatures(degree=degree),
+        LinearRegression(fit_intercept=False))
+    
     fold_mse = []
-
     for train_index, test_index in kfold.split(X):
         x_train, x_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
+
 
         theta = np.linalg.pinv(x_train) @ y_train
         y_pred = x_test @ theta
@@ -52,16 +59,13 @@ def kfold_CV_OLS(folds, degree):
 
     mse_mean = np.mean(fold_mse)
     mse_std = np.std(fold_mse, ddof=1)
-
     return mse_mean, mse_std
 
 mse_mean, mse_std = kfold_CV_OLS(5, 10) 
 print("OLS mean, std:",mse_mean, mse_std)
+print("-----")
 
-k = [5, 10]
-maxdeg = 20
-degree_V = np.arange(maxdeg + 1)
-lambdas = [1e-2, 1e-1, 1.0, 1e1]
+
 
 def ridge_kfold(k, deg, lmb):
     X = design_matrix(x, deg)
@@ -96,9 +100,89 @@ def ridge_kfold(k, deg, lmb):
     mse_Kfold = np.mean(score_KFold)
     mse_std = np.std(score_KFold, ddof=1)
     return mse_Kfold, mse_std
-for lmb in lambdas:
-    mse_KFold_r, mse_std_r = ridge_kfold(5, 10, lmb)
-    print(f"Ridge: lambda = {lmb}, Mse, std = ", mse_KFold_r, mse_std_r)
 
 
-# Hva betyr dette?
+def sklearn_kfold(folds, degree, lmb=None):
+    X = design_matrix(x, degree)
+    cv = KFold(n_splits=folds, shuffle=True, random_state=2026)
+
+    if lmb is None:
+        # X already includes the constant column.
+        model = LinearRegression(fit_intercept=False)
+    else:
+        model = make_pipeline(
+            StandardScaler(),
+            Ridge(alpha=lmb, fit_intercept=True, solver="svd")
+        )
+
+    fold_mse = -cross_val_score(
+        model, X, y,
+        cv=cv,
+        scoring="neg_mean_squared_error",
+        error_score="raise"
+    )
+
+    return fold_mse.mean(), fold_mse.std(ddof=1)
+
+
+degrees = np.arange(21)
+lambdas = [1e-2, 1e-1, 1.0, 1e1]
+
+fig, axes = plt.subplots(2, 2, figsize=(13, 9), sharex=True)
+
+for row, folds in enumerate([5, 10]):
+    # OLS
+    manual = np.array([
+        kfold_CV_OLS(folds, degree)[0]
+        for degree in degrees
+    ])
+    sklearn_mse = np.array([
+        sklearn_kfold(folds, degree)[0]
+        for degree in degrees
+    ])
+
+    ax = axes[row, 0]
+    ax.plot(degrees, manual, label="Manual")
+    ax.plot(degrees, sklearn_mse, "x--", label="Scikit-learn")
+    ax.set_title(f"OLS: {folds}-fold CV")
+    print(
+        f"OLS, k={folds}: maximum absolute MSE difference = "
+        f"{np.max(np.abs(manual - sklearn_mse)):.3e}"
+    )
+
+    # Ridge: one curve per lambda
+    ax = axes[row, 1]
+    for lmb in lambdas:
+        manual = np.array([
+            ridge_kfold(folds, degree, lmb)[0]
+            for degree in degrees
+        ])
+        sklearn_mse = np.array([
+            sklearn_kfold(folds, degree, lmb)[0]
+            for degree in degrees
+        ])
+
+        line, = ax.plot(
+            degrees, sklearn_mse,
+            label=rf"Scikit-learn $\lambda={lmb:g}$"
+        )
+        ax.plot(
+            degrees, manual, "x", color=line.get_color(),
+            label="Manual" if lmb == lambdas[0] else "_nolegend_"
+        )
+        print(
+            f"Ridge, k={folds}, lambda={lmb:g}: "
+            f"maximum absolute MSE difference = "
+            f"{np.max(np.abs(manual - sklearn_mse)):.3e}"
+        )
+
+    ax.set_title(f"Ridge: {folds}-fold CV")
+
+for ax in axes.flat:
+    ax.set_xlabel("Polynomial degree")
+    ax.set_ylabel("Mean test-fold MSE")
+    ax.grid(alpha=0.3)
+    ax.legend()
+
+plt.tight_layout()
+plt.show()

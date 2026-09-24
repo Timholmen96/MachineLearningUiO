@@ -35,28 +35,11 @@ for degree in range(maxdeg + 1):
     X_train, X_test, y_train, y_test = train_test_split(X,
     y, test_size=0.3, random_state=2026)
 
-    # Beholder intercept 
-    X_train_norm = X_train.copy()
-    X_test_norm = X_test.copy()
-
-    if degree > 0:
-        X_train_mean = X_train[:, 1:].mean(axis=0)
-        X_train_std = X_train[:, 1:].std(axis=0)
-
-        X_train_norm[:, 1:] = (X_train[:, 1:] - X_train_mean) / X_train_std 
-        X_test_norm[:, 1:] = (X_test[:, 1:] - X_train_mean) / X_train_std
-        # Trenger ikke sentrere y da design matrisen inneholder intercept
-    theta = np.linalg.pinv(X_train_norm) @ y_train
+    theta = np.linalg.pinv(X_train) @ y_train
     Parameter_V.append(theta)
 
-    # Bruk treningsmodellens normalisering for hver grads prediksjonskurve.
-    X_plot = design_matrix(xx, degree)
-    if degree > 0:
-        X_plot[:, 1:] = (X_plot[:, 1:] - X_train_mean) / X_train_std
-    Prediction_V.append(X_plot @ theta)
-
-    y_predict_test = X_test_norm @ theta
-    y_predict_train = X_train_norm @ theta
+    y_predict_test = X_test @ theta
+    y_predict_train = X_train @ theta
     # Here i create the data for figure 2.11
     from sklearn.metrics import mean_squared_error
     mse_test = mean_squared_error(y_test, y_predict_test)

@@ -25,30 +25,18 @@ def bootstrap_bias_variance(n_bs, maxdeg):
     bias = np.zeros(maxdeg)
     variance = np.zeros(maxdeg)
 
-
-
     for degree in range(maxdeg):
         X = design_matrix(x, degree)
         X_train, X_test, y_train, y_test = train_test_split(
             X, y, test_size=0.3, random_state=2026
         )
-        # Beholder intercept
-        X_train_norm = X_train.copy()
-        X_test_norm = X_test.copy()
-        # normaliserer data
-        if degree > 0:
-            X_train_mean = X_train[:, 1:].mean(axis=0)
-            X_train_std = X_train[:, 1:].std(axis=0)
 
-            X_train_norm[:, 1:] = (X_train[:, 1:] - X_train_mean) / X_train_std 
-            X_test_norm[:, 1:] = (X_test[:, 1:] - X_train_mean) / X_train_std
-            # Trenger ikke sentrere y da design matrisen inneholder intercept
         y_pred = np.zeros((y_test.shape[0], n_bs))
         for i in range(n_bs):
-            X_bs, y_bs = resample(X_train_norm, y_train)
+            X_bs, y_bs = resample(X_train, y_train)
             theta = np.linalg.pinv(X_bs) @ y_bs
 
-            y_pred[:, i] = X_test_norm @ theta
+            y_pred[:, i] = X_test @ theta
 
         # Compare each test target with every bootstrap prediction for that point.
         error[degree] = np.mean((y_test[:, None] - y_pred)**2)

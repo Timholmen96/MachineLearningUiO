@@ -36,6 +36,8 @@ for degree in range(maxdeg + 1):
 
     theta = np.linalg.pinv(X_train) @ y_train
     Parameter_V.append(theta)
+    if degree == 5:
+        print(theta)
 
     X_plot = design_matrix(xx, degree)
     Prediction_V.append(X_plot @ theta)
@@ -82,3 +84,4 @@ plt.ylabel("Score")
 plt.legend()
 plt.grid()
 plt.show()
+
