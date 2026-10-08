@@ -1,1 +1,4 @@
 .venv/
+.DS_Store*
+doc/.DS_Store 
+doc/WeeklyMaterial/.Ds_Store
