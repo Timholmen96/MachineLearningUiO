@@ -1,0 +1,5 @@
+# Exerciseweek 42
+Mangler jeg RNG nøkkel?
+- Week42 tuesday har RNG i
+create_layers
+create_layers_batch
